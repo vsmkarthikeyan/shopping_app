@@ -10,12 +10,29 @@ class ProductDetails extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final productId = ModalRoute.of(context)?.settings.arguments as String;
-    final productTitle = context.read<ProductsProvider>().findById(productId);
+    final product = context.read<ProductsProvider>().findById(productId);
     return Scaffold(
       appBar: AppBar(
-        title: Text(productTitle),
+        title: Text(product.title),
       ),
-      body: Center(child: Text('Product Details')),
+      body: SingleChildScrollView(
+        child: Column(
+          children: [
+            Container(
+              height: 600,
+              width: double.infinity,
+              child: Image.network(
+                product.imageUrl,
+                fit: BoxFit.cover,
+              ),
+            ),
+            SizedBox(width: 10),
+            Text(product.description),
+            SizedBox(width: 10),
+            Text(product.price.toString()),
+          ],
+        ),
+      ),
     );
   }
 }

@@ -49,7 +49,7 @@ class ProductsProvider with ChangeNotifier {
     notifyListeners();
   }
 
-  String findById(String id) {
-    return _items.firstWhere((product) => product.id == id).title;
+  Product findById(String id) {
+    return _items.firstWhere((product) => product.id == id);
   }
 }
