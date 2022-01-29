@@ -1,4 +1,6 @@
 import 'package:flutter/cupertino.dart';
+import 'package:http/http.dart' as http;
+import 'dart:convert';
 
 class Product with ChangeNotifier {
   final String id;
@@ -15,9 +17,18 @@ class Product with ChangeNotifier {
       required this.price,
       required this.imageUrl,
       this.isFavorite = false});
-  void toggleFavorite() {
+  Future<void> toggleFavorite() async {
+    final oldStatus = isFavorite;
     isFavorite = !isFavorite;
-
     notifyListeners();
+
+    final url = Uri.https(
+        'shopping-app-8c766-default-rtdb.firebaseio.com', '/products/$id.json');
+    try {
+      await http.patch(url, body: json.encode({'isFavorite': isFavorite}));
+    } catch (error) {
+      isFavorite = oldStatus;
+      notifyListeners();
+    }
   }
 }
