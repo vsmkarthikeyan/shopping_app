@@ -33,7 +33,7 @@ class Orders with ChangeNotifier {
           json.decode(value.body.toString()) as Map<String, dynamic>;
       List<OrderItem> extractedOrder = [];
       extractedData.forEach((orderId, orderData) {
-        OrderItem(
+        extractedOrder.add(OrderItem(
             amount: orderData['amount'],
             id: orderId,
             products: (orderData['products'] as List<dynamic>)
@@ -46,10 +46,10 @@ class Orders with ChangeNotifier {
                   ),
                 )
                 .toList(),
-            dateTime: DateTime.parse(orderData['dateTime']));
-        _orders = extractedOrder.reversed.toList();
-        notifyListeners();
+            dateTime: DateTime.parse(orderData['dateTime'])));
       });
+      _orders = extractedOrder.reversed.toList();
+      notifyListeners();
     } catch (error) {}
   }
 
