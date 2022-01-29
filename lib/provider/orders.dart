@@ -24,7 +24,36 @@ class Orders with ChangeNotifier {
     return [..._orders];
   }
 
-  void addOrder(List<CartItem> cartProducts, double total) async {
+  Future<void> fetchorderandLoad() async {
+    final url = Uri.https(
+        'shopping-app-8c766-default-rtdb.firebaseio.com', '/orders.json');
+    try {
+      final value = await http.get(url);
+      final extractedData =
+          json.decode(value.body.toString()) as Map<String, dynamic>;
+      List<OrderItem> extractedOrder = [];
+      extractedData.forEach((orderId, orderData) {
+        OrderItem(
+            amount: orderData['amount'],
+            id: orderId,
+            products: (orderData['products'] as List<dynamic>)
+                .map(
+                  (item) => CartItem(
+                    id: item['id'],
+                    price: item['price'],
+                    quantity: item['quantity'],
+                    title: item['title'],
+                  ),
+                )
+                .toList(),
+            dateTime: DateTime.parse(orderData['dateTime']));
+        _orders = extractedOrder.reversed.toList();
+        notifyListeners();
+      });
+    } catch (error) {}
+  }
+
+  Future<void> addOrder(List<CartItem> cartProducts, double total) async {
     final timeStamp = DateTime.now();
     final url = Uri.https(
         'shopping-app-8c766-default-rtdb.firebaseio.com', '/orders.json');
@@ -43,17 +72,16 @@ class Orders with ChangeNotifier {
                     })
                 .toList(),
           }));
+      _orders.insert(
+        0,
+        OrderItem(
+          id: json.decode(value.body)['name'],
+          amount: total,
+          dateTime: DateTime.now(),
+          products: cartProducts,
+        ),
+      );
+      notifyListeners();
     } catch (error) {}
-
-    _orders.insert(
-      0,
-      OrderItem(
-        id: DateTime.now().toString(),
-        amount: total,
-        dateTime: DateTime.now(),
-        products: cartProducts,
-      ),
-    );
-    notifyListeners();
   }
 }

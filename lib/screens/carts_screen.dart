@@ -33,15 +33,7 @@ class CartScreen extends StatelessWidget {
                     label: Text('\$${context.watch<Cart>().totalAmount}'),
                     backgroundColor: Theme.of(context).primaryColor,
                   ),
-                  ElevatedButton(
-                    onPressed: () {
-                      context.read<Orders>().addOrder(
-                          context.read<Cart>().items.values.toList(),
-                          context.read<Cart>().totalAmount.ceilToDouble());
-                      context.read<Cart>().clear();
-                    },
-                    child: Text('Order Now'),
-                  )
+                  OrderWidget()
                 ],
               ),
             ),
@@ -63,5 +55,40 @@ class CartScreen extends StatelessWidget {
         ],
       ),
     );
+  }
+}
+
+class OrderWidget extends StatefulWidget {
+  const OrderWidget({
+    Key? key,
+  }) : super(key: key);
+
+  @override
+  State<OrderWidget> createState() => _OrderWidgetState();
+}
+
+class _OrderWidgetState extends State<OrderWidget> {
+  @override
+  var _initState = false;
+  Widget build(BuildContext context) {
+    return _initState
+        ? CircularProgressIndicator()
+        : ElevatedButton(
+            onPressed: (context.read<Cart>().items.length <= 0 || _initState)
+                ? null
+                : () async {
+                    setState(() {
+                      _initState = true;
+                    });
+                    await context.read<Orders>().addOrder(
+                        context.read<Cart>().items.values.toList(),
+                        context.read<Cart>().totalAmount.ceilToDouble());
+                    setState(() {
+                      _initState = false;
+                    });
+                    context.read<Cart>().clear();
+                  },
+            child: Text('Order Now'),
+          );
   }
 }
