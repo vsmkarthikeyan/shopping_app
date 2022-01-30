@@ -29,8 +29,10 @@ void main() {
         ChangeNotifierProvider<Cart>(
           create: (ctx) => Cart(),
         ),
-        ChangeNotifierProvider<Orders>(
-          create: (ctx) => Orders(),
+        ChangeNotifierProxyProvider<Auth, Orders>(
+          create: (ctx) => Orders('', []),
+          update: (ctx, auth, previousOrders) => Orders(auth.token!,
+              (previousOrders == null) ? [] : previousOrders.orders),
         ),
       ],
       child: const MyApp(),

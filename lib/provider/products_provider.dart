@@ -111,7 +111,7 @@ class ProductsProvider with ChangeNotifier {
   Future<void> updateProduct(String id, Product newProduct) async {
     final prodIndex = _items.indexWhere((prod) => prod.id == id);
     final url = Uri.parse(
-        'https://shopping-app-8c766-default-rtdb.firebaseio.com/products.json?auth=$authToken');
+        'https://shopping-app-8c766-default-rtdb.firebaseio.com/products/$id.json?auth=$authToken');
     try {
       final value = await http.patch(
         url,
@@ -139,7 +139,7 @@ class ProductsProvider with ChangeNotifier {
     _items.removeWhere((prod) => prod.id == id);
     notifyListeners();
     final url = Uri.parse(
-        'https://shopping-app-8c766-default-rtdb.firebaseio.com/products.json?auth=$authToken');
+        'https://shopping-app-8c766-default-rtdb.firebaseio.com/products/$id.json?auth=$authToken');
     try {
       await http.delete(url).then((value) {
         if (value.statusCode >= 400) {

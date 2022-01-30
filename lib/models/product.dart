@@ -17,15 +17,15 @@ class Product with ChangeNotifier {
       required this.price,
       required this.imageUrl,
       this.isFavorite = false});
-  Future<void> toggleFavorite() async {
+  Future<void> toggleFavorite(String authToken, String userId) async {
     final oldStatus = isFavorite;
     isFavorite = !isFavorite;
     notifyListeners();
 
-    final url = Uri.https(
-        'shopping-app-8c766-default-rtdb.firebaseio.com', '/products/$id.json');
+    final url = Uri.parse(
+        'https://shopping-app-8c766-default-rtdb.firebaseio.com/products/userFavorities/$userId.json?auth=$authToken');
     try {
-      await http.patch(url, body: json.encode({'isFavorite': isFavorite}));
+      await http.put(url, body: json.encode({id: isFavorite}));
     } catch (error) {
       isFavorite = oldStatus;
       notifyListeners();
