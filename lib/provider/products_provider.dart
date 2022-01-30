@@ -39,7 +39,9 @@ class ProductsProvider with ChangeNotifier {
           'https://upload.wikimedia.org/wikipedia/commons/thumb/1/14/Cast-Iron-Pan.jpg/1024px-Cast-Iron-Pan.jpg',
     ),*/
   ];
+  final String authToken;
 
+  ProductsProvider(this.authToken, this._items);
   List<Product> get items {
     return [..._items];
   }
@@ -49,12 +51,16 @@ class ProductsProvider with ChangeNotifier {
   }
 
   Future<void> fetchandSetProducts() async {
-    final url = Uri.https(
-        'shopping-app-8c766-default-rtdb.firebaseio.com', '/products.json');
+    print(authToken);
+    final url = Uri.parse(
+        'https://shopping-app-8c766-default-rtdb.firebaseio.com/products.json?auth=$authToken');
     try {
       final value = await http.get(url);
       final extractedData =
           json.decode(value.body.toString()) as Map<String, dynamic>;
+      if (extractedData == null) {
+        return;
+      }
       final List<Product> listofProducts = [];
       extractedData.forEach((prodId, prodData) {
         listofProducts.add(Product(
@@ -73,8 +79,8 @@ class ProductsProvider with ChangeNotifier {
   }
 
   Future<void> addProduct(Product product) async {
-    final url = Uri.https(
-        'shopping-app-8c766-default-rtdb.firebaseio.com', '/products.json');
+    final url = Uri.parse(
+        'https://shopping-app-8c766-default-rtdb.firebaseio.com/products.json?auth=$authToken');
 
     try {
       final value = await http.post(
@@ -104,8 +110,8 @@ class ProductsProvider with ChangeNotifier {
 
   Future<void> updateProduct(String id, Product newProduct) async {
     final prodIndex = _items.indexWhere((prod) => prod.id == id);
-    final url = Uri.https(
-        'shopping-app-8c766-default-rtdb.firebaseio.com', '/products/$id.json');
+    final url = Uri.parse(
+        'https://shopping-app-8c766-default-rtdb.firebaseio.com/products.json?auth=$authToken');
     try {
       final value = await http.patch(
         url,
@@ -132,8 +138,8 @@ class ProductsProvider with ChangeNotifier {
     var existingProduct = _items[existingIndex];
     _items.removeWhere((prod) => prod.id == id);
     notifyListeners();
-    final url = Uri.https(
-        'shopping-app-8c766-default-rtdb.firebaseio.com', '/products/$id.json');
+    final url = Uri.parse(
+        'https://shopping-app-8c766-default-rtdb.firebaseio.com/products.json?auth=$authToken');
     try {
       await http.delete(url).then((value) {
         if (value.statusCode >= 400) {

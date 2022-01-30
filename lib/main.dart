@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:shopping_app/models/auth.dart';
 import 'package:shopping_app/provider/carts.dart';
 import 'package:shopping_app/provider/orders.dart';
 import 'package:shopping_app/provider/products_provider.dart';
@@ -15,8 +16,15 @@ void main() {
   runApp(
     MultiProvider(
       providers: [
-        ChangeNotifierProvider<ProductsProvider>(
-          create: (ctx) => ProductsProvider(),
+        ChangeNotifierProvider<Auth>(
+          create: (ctx) => Auth(),
+        ),
+        ChangeNotifierProxyProvider<Auth, ProductsProvider>(
+          create: (context) {
+            return ProductsProvider('', []);
+          },
+          update: (ctx, auth, previousProduct) => ProductsProvider(auth.token!,
+              (previousProduct == null) ? [] : previousProduct.items),
         ),
         ChangeNotifierProvider<Cart>(
           create: (ctx) => Cart(),
@@ -43,7 +51,8 @@ class MyApp extends StatelessWidget {
         primarySwatch: Colors.purple,
         accentColor: Colors.deepOrange,
       ),
-      home: AuthScreen(),
+      home:
+          context.watch<Auth>().isAuth ? ProductOverviewScreen() : AuthScreen(),
       routes: {
         ProductDetails.routeName: (ctx) => ProductDetails(),
         CartScreen.routeName: (ctx) => CartScreen(),
